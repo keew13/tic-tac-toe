@@ -74,7 +74,7 @@ class TicTacToe:
 
     def make_move(self, x, y, player):
         """
-            make_move allows to the player to put his marker on the
+            make_move allows the player to put his marker on the
             board at his desired position.
         
             Parameter(s):
