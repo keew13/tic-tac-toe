@@ -7,12 +7,29 @@ class SmartPlayer():
     """
 
     def __init__(self, player):
+        """
+            Initializes the SmartPlayer with a set of certain characteristics.
+
+            Parameter(s):
+                player (string): represents the marker associated with the player
+                                 accepted values: ["X", "O"]
+        """
         self.player = player
         self.exploration = 0.3
         self.gamma = 0.9
         self.learning_rate = 0.2
 
     def find_empty(self, board):
+        """
+            find_empty finds all empty locations on the board.
+
+            Parameter(s):
+                board (list of lists): a tic tac toe board
+
+            Return(s):
+                empty_locn: a list of lists where each sublist represents
+                            the indices of location
+        """
         empty_locn = []
         for i in range(0, 3):
             for j in range(0, 3):
@@ -21,6 +38,25 @@ class SmartPlayer():
         return empty_locn
 
     def generate_states(self, board):
+        """
+            generate_states generates the state string of the board in current
+            condition. This is done by iterating through each row one by one.
+
+            Parameter(s):
+                board (list of lists): a tic tac toe board
+
+            Return(s):
+                state: a string representing the state of the board
+
+            Example:
+                if the current condition of the board is:
+                    X   |   O   |   X
+                    O   |       |   X
+                    O   |   X   |   O
+
+                and {X: 1, O: -1, "":0} then,
+                state = "1 -1 1 -1 0 1 -1 1 -1"
+        """
         transform_marker = {"X":"1", "O":"-1", "":"0"}
         state = ""
         for i in range(0, 3):
@@ -30,7 +66,19 @@ class SmartPlayer():
 
     def make_move(self, state_reward, board):
         """
-            make_move allows the player to put his marker on the board
+            make_move allows the player to put his marker on the board.
+
+            Parameter(s):
+                state_reward (dict{string: float}): a dictionary containing the states and rewards
+                                                    associated with them
+                                                    key: should be a valid state string
+                                                    value: rewards calculated for the particular state
+                board (list of lists): a tic tac toe board
+
+            Return(s):
+                move (list): a move describe by the row and column position of the move
+                state_reward(dict): a dictionary containing the states and rewards
+                                    associated with them
         """
         move = []
         if np.random.uniform(0, 1)<self.exploration:
@@ -59,6 +107,25 @@ class SmartPlayer():
         return move, state_reward
 
     def backpropagate(self, states_of_game, reward, state_reward):
+        """
+            backpropagate backpropogates the reward received by the player at
+            the end of the game to each of the contributing states.
+
+            Parameter(s):
+                states_of_game (list): a list of strings of each state the board has
+                                       been through in the entirety of the game in sequence
+                                       len(states_of_game)==9
+                reward (int): reward/feedback sent by the board to the players based on the
+                              performance in the game
+                state_reward (dict{string: float}): a dictionary containing the states and rewards
+                                                    associated with them
+                                                    key: should be a valid state string
+                                                    value: rewards calculated for the particular state
+            
+            Return(s):
+                state_reward(dict): an updated dictionary containing the states and rewards
+                                    associated with them
+        """
         for state in reversed(states_of_game):
             if state not in  state_reward.keys():
                 state_reward[state] = 0
