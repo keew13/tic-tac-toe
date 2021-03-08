@@ -6,16 +6,18 @@ class SmartPlayer():
         in playing TicTacToe over multiple games through Reinforcement Learning.
     """
 
-    def __init__(self, player):
+    def __init__(self, player, exploration):
         """
             Initializes the SmartPlayer with a set of certain characteristics.
 
             Parameter(s):
                 player (string): represents the marker associated with the player
                                  accepted values: ["X", "O"]
+                exploration (float): represents the probability of exploring for a solution
+                                     range: 0<=exploration<=1
         """
         self.player = player
-        self.exploration = 0.3
+        self.exploration = exploration
         self.gamma = 0.9
         self.learning_rate = 0.2
 
@@ -113,8 +115,8 @@ class SmartPlayer():
 
             Parameter(s):
                 states_of_game (list): a list of strings of each state the board has
-                                       been through in the entirety of the game in sequence
-                                       len(states_of_game)==9
+                                       been for the player in the entirety of the game in sequence
+                                       len(states_of_game)==5/4
                 reward (int): reward/feedback sent by the board to the players based on the
                               performance in the game
                 state_reward (dict{string: float}): a dictionary containing the states and rewards
@@ -127,7 +129,7 @@ class SmartPlayer():
                                     associated with them
         """
         for state in reversed(states_of_game):
-            if state not in  state_reward.keys():
+            if state not in state_reward.keys():
                 state_reward[state] = 0
             state_reward[state] = state_reward[state] + self.learning_rate*(reward*self.gamma - state_reward[state])
             reward = state_reward[state]

@@ -8,7 +8,7 @@ class Board:
         game will be played and it provides the basic utilities to do so.
     """
 
-    def __init__(self, state_rewards_path_X, state_rewards_path_O):
+    def __init__(self, state_rewards_path_X, state_rewards_path_O, exploration):
         """
             Initializes the tic tac toe board and loads the contents of rewards files.
 
@@ -17,6 +17,8 @@ class Board:
                                                and associated rewards for player X
                 state_rewards_path_O (string): path for the json file containing the states
                                                and associated rewards for player O
+                exploration (float): represents the probability of exploring for a solution
+                                     range: 0<=exploration<=1
         """
         self.path_X = state_rewards_path_X
         self.path_O = state_rewards_path_O
@@ -25,9 +27,10 @@ class Board:
         with open(self.path_O) as file:
             self.states_reward_O = json.load(file)
         self.board = [["", "", ""], ["", "", ""], ["", "", ""]]
-        self.player1 = SmartPlayer("X")
-        self.player2 = SmartPlayer("O")
-        self.states_of_game = []
+        self.player1 = SmartPlayer("X", exploration)
+        self.player2 = SmartPlayer("O", exploration)
+        self.states_of_game_X = []
+        self.states_of_game_O = []
 
     def display_board(self):
         """
@@ -54,7 +57,8 @@ class Board:
                 None
         """
         self.board = [["", "", ""], ["", "", ""], ["", "", ""]]
-        self.states_of_game = []
+        self.states_of_game_X = []
+        self.states_of_game_O = []
 
     def is_win(self):
         """
@@ -151,14 +155,14 @@ class Board:
                 None
         """
         if self.is_win() == "X":
-            self.states_reward_X = self.player1.backpropagate(self.states_of_game, 1, self.states_reward_X)
-            self.states_reward_O = self.player2.backpropagate(self.states_of_game, -1, self.states_reward_O)
+            self.states_reward_X = self.player1.backpropagate(self.states_of_game_X, 1, self.states_reward_X)
+            self.states_reward_O = self.player2.backpropagate(self.states_of_game_O, -1, self.states_reward_O)
         elif self.is_win() == "O":
-            self.states_reward_X = self.player1.backpropagate(self.states_of_game, -1, self.states_reward_X)
-            self.states_reward_O = self.player2.backpropagate(self.states_of_game, 1, self.states_reward_O)
+            self.states_reward_X = self.player1.backpropagate(self.states_of_game_X, -1, self.states_reward_X)
+            self.states_reward_O = self.player2.backpropagate(self.states_of_game_O, 1, self.states_reward_O)
         elif self.is_win() == "Draw":
-            self.states_reward_X = self.player1.backpropagate(self.states_of_game, 0, self.states_reward_X)
-            self.states_reward_O = self.player2.backpropagate(self.states_of_game, 0, self.states_reward_O)    
+            self.states_reward_X = self.player1.backpropagate(self.states_of_game_X, 0, self.states_reward_X)
+            self.states_reward_O = self.player2.backpropagate(self.states_of_game_O, 0, self.states_reward_O)    
     
     def train_agents(self):
         """
@@ -171,12 +175,14 @@ class Board:
             for m in range(0, 9, 2):
                 move, self.states_reward_X = self.player1.make_move(self.states_reward_X, self.board)
                 self.board[move[0]][move[1]] = self.player1.player                
-                self.states_of_game.append(self.generate_states())
-                if(m==8):
+                self.states_of_game_X.append(self.generate_states())
+                if(self.is_win()=="X" or m==8): 
                     break
                 move, self.states_reward_O =  self.player2.make_move(self.states_reward_O, self.board)
                 self.board[move[0]][move[1]] = self.player2.player
-                self.states_of_game.append(self.generate_states())
+                self.states_of_game_O.append(self.generate_states())
+                if(self.is_win()=="O"):
+                    break
             self.give_reward()
             self.reset_board()
         with open(self.path_X, 'w') as file:
@@ -185,5 +191,5 @@ class Board:
             json.dump(self.states_reward_O, file, indent=4)
 
 if __name__ == "__main__":
-    TicTacToe = Board("state_rewards_X.json", "state_rewards_O.json")
+    TicTacToe = Board("state_rewards_X.json", "state_rewards_O.json", 0.1)
     TicTacToe.train_agents()

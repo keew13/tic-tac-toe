@@ -3,38 +3,38 @@ import environment
 import agent
 
 winner = ""
-board = environment.Board("state_rewards_X.json", "state_rewards_O.json")
-board.display_board()
+b = environment.Board("state_rewards_X.json", "state_rewards_O.json", 0)
+b.display_board()
 for i in range(0, 9):
     if(i%2==0):
         print("Player 1's Turn")
-        move, _ = board.player1.make_move(board.states_reward_X, board.board)
-        print(move)
+        move, _ = b.player1.make_move(b.states_reward_X, b.board)
+        print("[", move[0]+1, ", ", move[1]+1, "]")
         x = int(input("row pos: "))
         y = int(input("col pos: "))
-        board.make_move("X", [x, y])
-        board.display_board()
-        winner = board.is_win()
+        b.make_move("X", [x, y])
+        b.display_board()
+        winner = b.is_win()
         if winner == "X":
             print("Player 1 has won.")
-            board.reset_board()
+            b.reset_board()
             break
     else:
         print("Player 2's Turn")
-        move, _ = board.player2.make_move(board.states_reward_O, board.board)
-        print(move)
+        move, _ = b.player2.make_move(b.states_reward_O, b.board)
+        print("[", move[0]+1, ", ", move[1]+1, "]")
         x = int(input("row pos: "))
         y = int(input("col pos: "))
-        board.make_move("O", [x, y])
-        board.display_board()
-        winner = board.is_win()
+        b.make_move("O", [x, y])
+        b.display_board()
+        winner = b.is_win()
         if winner == "O":
             print("Player 2 has won.")
-            board.reset_board()
+            b.reset_board()
             break
 
-if board.is_win() == "Draw":
+if b.is_win() == "Draw":
     print("Match has drawn.")
-    board.reset_board()
+    b.reset_board()
 
-board.display_board()
+b.display_board()
